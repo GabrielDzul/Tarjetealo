@@ -101,11 +101,10 @@
             try{
                 
                  $collection = $this->openConnection(); 
-                 //TODO:Remove this
-                // var_dump($collection);
                  //Insert in a collection
-                 $collection->insertOne($userData);
+                 $last_inserted_id = $collection->insertOne($userData);
                  echo "Document inserted successfully";
+                 return $last_inserted_id->getInsertedId();
                 
             }catch(Exception $e){
                 echo($e->getMesage);
@@ -117,6 +116,20 @@
             $collection = $this->openConnection();
             $user = $collection->findOne(array('_id' => $id));
             return $user;
+        }
+
+        public function updateUser($id, array $newUserData){
+            try{
+                
+                $collection = $this->openConnection(); 
+                //update a collection
+                $last_inserted_id = $collection->updateOne(array('_id' => $id),
+                array('$set'=>$newUserData));
+                echo "Document updated successfully";
+               
+           }catch(Exception $e){
+               echo($e->getMesage);
+           }
         }
 
         
