@@ -1,5 +1,7 @@
 <?php
-   require '../../vendor/autoload.php';
+  
+  $Path = dirname( __FILE__ ); 
+  require ($Path.'../../../vendor/autoload.php');
 
 /**
  * Class to mannage the interaction with the mongo data base.
@@ -73,6 +75,21 @@
         }
 
         /**
+       * Method to select the collection on the mongodb database
+       *@param $mongo_data_base the mongodb database
+       * @author GabrielDzul
+       * @Date 26/03/28
+       * @api
+       */
+      private function openConnection(){
+        $client = $this->connetToMongoDb();
+        $dataBase = $this->selectDataBase($client);
+        $collection = $this->selectCollection($dataBase);
+
+      return $collection;  
+    }
+
+        /**
        * Method to add a new user to the collecion
        *@param array an array with the new user data
        * @author GabrielDzul
@@ -85,7 +102,7 @@
                 
                  $collection = $this->openConnection(); 
                  //TODO:Remove this
-                 var_dump($collection);
+                // var_dump($collection);
                  //Insert in a collection
                  $collection->insertOne($userData);
                  echo "Document inserted successfully";
@@ -96,32 +113,16 @@
 
         }
 
-        /**
-       * Method to select the collection on the mongodb database
-       *@param $mongo_data_base the mongodb database
-       * @author GabrielDzul
-       * @Date 26/03/28
-       * @api
-       */
-        private function openConnection(){
-            $client = $this->connetToMongoDb();
-            $dataBase = $this->selectDataBase($client);
-            $collection = $this->selectCollection($dataBase);
-
-          return $collection;  
+        public function getUserById( $id){
+            $collection = $this->openConnection();
+            $user = $collection->findOne(array('_id' => $id));
+            return $user;
         }
+
+        
 
         
     }
 
-    $config = new MongoConnectionMannager;
-
-    $document = array( 
-        "name" => "Brayan", 
-        "lastName" => "Herrasti", 
-        "nick" => "Diosito",
-        "password" => "123456"
-     );
-    $config->addNewUser( $document);
     
 ?>
