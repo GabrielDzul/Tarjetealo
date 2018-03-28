@@ -113,9 +113,15 @@
         }
 
         public function getUserById( $id){
-            $collection = $this->openConnection();
-            $user = $collection->findOne(array('_id' => $id));
-            return $user;
+            try{
+                $collection = $this->openConnection();
+                $user = $collection->findOne(array('_id' => $id));
+                return $user;
+
+            }catch(Exception $e){
+                echo($e->getMesage);
+            }
+            
         }
 
         public function updateUser($id, array $newUserData){
@@ -132,7 +138,16 @@
            }
         }
 
-        
+        public function deleteUser($id){
+            try{
+                $collection = $this->openConnection();
+                $user = $collection->deleteOne(array('_id' => $id));
+                return true;
+
+            }catch(Exception $e){
+                echo($e->getMesage);
+            }
+        }
 
         
     }
