@@ -86,6 +86,29 @@ $app->group('/user', function(){
 
     });
 
+    $this->delete('/delete/{id}', function (Request $request, Response $response, array $args){
+
+        try{
+            $userId = new MongoDB\BSON\ObjectId($args['id']);
+            $userDeleted;
+        
+            $mongoConnection = new MongoConnectionMannager();
+            $userDeleted = $mongoConnection->deleteUser($userId);
+
+            if($userDeleted){
+                $status= json_encode(array('status' => 'success',
+                'message' => 'User deleted Successfully'));
+                echo($status);
+            }
+            
+
+        }catch(Exception $exception){
+            echo json_encode(array('status' => 'error',
+                'message' => $exception->getMessage()));
+        }
+
+    });
+
     $this->get('/mira', function (Request $request, Response $response){
         echo getcwd();
     });
