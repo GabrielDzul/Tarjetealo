@@ -48,9 +48,6 @@ $app->group('/user', function(){
 
             
             echo json_encode($user);
-            //$response->getBody()->write("The user is",$user);
-            //return $response;
-            
 
         }catch(Exception $exception){
             echo json_encode(array('status' => 'error',
@@ -109,10 +106,66 @@ $app->group('/user', function(){
 
     });
 
-    $this->get('/mira', function (Request $request, Response $response){
-        echo getcwd();
+    $this->post('/login', function (Request $request, Response $response){
+
+        try{
+            $data = $request->getParsedBody();
+            $user_data=[];
+            $user_data['nick'] = filter_var($data['nick'], FILTER_SANITIZE_STRING);
+            $user_data['password'] = filter_var($data['password'], FILTER_SANITIZE_STRING);
+        
+            $mongoConnection = new MongoConnectionMannager();
+            $valid_user = $mongoConnection->isValidUser($user_data);
+            if($valid_user){
+                $status= json_encode(array('status' => 'success',
+                'message' => 'valid users credentials'));
+                 $response->getBody()->write($status);
+
+            }else{
+                $status= json_encode(array('status' => 'error',
+                'message' => 'invalid users credentials'));
+                 $response->getBody()->write($status);
+            }
+
+            
+            
+
+        }catch(Exception $exception){
+            echo json_encode(array('status' => 'error',
+                'message' => $exception->getMessage()));
+        }
+
+    });
+    
+});
+
+//###################### List Group  ################
+$app->group('/list', function(){
+    $this->post('/new', function (Request $request, Response $response){
+        try{
+            $data = $request->getParsedBody();
+            //$userId = new MongoDB\BSON\ObjectId($args['id']);
+            $userId = new MongoDB\BSON\ObjectId($data['userId']);
+            $new_list_data=[];
+            $new_list_data['_id'] = new MongoDB\BSON\ObjectId();
+            $new_list_data['listName'] = filter_var($data['listName'], FILTER_SANITIZE_STRING);
+            $new_list_data['score'] = filter_var($data['score'], FILTER_SANITIZE_STRING);
+            $new_list_data['isFavorite'] = filter_var($data['isFavorite'], FILTER_SANITIZE_STRING);
+        
+            $mongoConnection = new MongoConnectionMannager();
+            $mongoConnection->addListToUser($userId, $new_list_data);
+
+            $status= json_encode(array('status' => 'success',
+            'message' => 'list added Successfully',
+            'list_id' => $new_list_data['_id']));
+            $response->getBody()->write($status);
+            
+
+        }catch(Exception $exception){
+            echo json_encode(array('status' => 'error',
+                'message' => $exception->getMessage()));
+        }
     });
 
-    
 });
 ?>
