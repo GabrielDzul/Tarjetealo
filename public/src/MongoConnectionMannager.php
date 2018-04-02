@@ -149,6 +149,43 @@
             }
         }
 
+        public function isValidUser(array $userCredentials){
+            try{
+                $collection = $this->openConnection();
+               //$valid_user = $collection->findOne(array('$and', array(array('nick' => $userCredentials['nick']),
+                //array('password' => $userCredentials['password']))));
+                $valid_user = $collection->findOne(array('nick' => $userCredentials['nick'],
+                    'password' => $userCredentials['password']));
+                 var_dump($valid_user);
+                 var_dump($userCredentials);
+                if($valid_user !==null){
+                    return true;
+                }
+
+                return false;
+
+            }catch(Exception $e){
+                echo($e->getMesage);
+            }
+        }
+
+        public function addListToUser($userId, array $list){
+            try{
+                
+                $collection = $this->openConnection(); 
+                //Insert a list into a collection
+                $collection->updateOne(array('_id'=>$userId), 
+                array('$push' => array('lists' => $list)));
+                echo "Document inserted successfully";
+                //return $last_inserted_id->getInsertedId();
+                return true;
+               
+           }catch(Exception $e){
+               echo($e->getMesage);
+           }
+
+        }
+
         
     }
 
