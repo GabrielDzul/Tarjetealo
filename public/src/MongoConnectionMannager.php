@@ -25,8 +25,8 @@
        */
        private function connetToMongoDb(){
             try{
-                $client = new MongoDB\Client('mongodb://cloud-tarjetas-admin:f0cal0ca$181@cluster-tarjetas-shard-00-00-n7uzs.mongodb.net:27017,cluster-tarjetas-shard-00-01-n7uzs.mongodb.net:27017,cluster-tarjetas-shard-00-02-n7uzs.mongodb.net:27017/admin?replicaSet=Cluster-tarjetas-shard-0&ssl=true');
-                echo("conectado al cluster##\n");
+                $client = new MongoDB\Client('mongodb://admin:f0cal0ca@ds233500.mlab.com:33500/tarjetealodb');
+                //echo("conectado al cluster##\n");
                 return $client;
             }catch(Exception $e){
                 echo($e->getMesage);
@@ -44,8 +44,8 @@
         private function selectDataBase(MongoDB\Client $client){
             try{
                 //select the database    
-               $mongo_data_base = $client->tarjetealoDB;              
-                echo("base de datos seleccionada ##"."\n");
+               $mongo_data_base = $client->tarjetealodb;              
+                //echo("base de datos seleccionada ##"."\n");
                 return $mongo_data_base;
                 
             }catch(Exception $e){
@@ -66,7 +66,7 @@
             try{
                 //select the collection   
                 $collection = $mongo_data_base->Tarjetealo;            
-                echo("Colección seleccionada ##"."\n");
+                //echo("Colección seleccionada ##"."\n");
                 return $collection;
                 
             }catch(Exception $e){
@@ -152,8 +152,6 @@
         public function isValidUser(array $userCredentials){
             try{
                 $collection = $this->openConnection();
-               //$valid_user = $collection->findOne(array('$and', array(array('nick' => $userCredentials['nick']),
-                //array('password' => $userCredentials['password']))));
                 $valid_user = $collection->findOne(array('nick' => $userCredentials['nick'],
                     'password' => $userCredentials['password']));
                  var_dump($valid_user);
@@ -168,7 +166,7 @@
                 echo($e->getMesage);
             }
         }
-
+        //######################Lists section #################################
         public function addListToUser($userId, array $list){
             try{
                 
@@ -184,6 +182,33 @@
                echo($e->getMesage);
            }
 
+        }
+
+        public function getListById($id){
+            try{
+                $collection = $this->openConnection();
+                $list = $collection->findOne(array('lists._id' => $id), array('projection' => 
+                array('lists' => 1)));
+                return $list;
+
+            }catch(Exception $e){
+                echo($e->getMesage);
+            }
+            
+        }
+
+        public function updateList($id, array $newListData){
+            try{
+                
+                $collection = $this->openConnection(); 
+                //update a collection
+                $last_inserted_id = $collection->updateOne(array('Lists._id' => $id),
+                array('$set' => $newListData));
+                //echo "Document updated successfully";
+               
+           }catch(Exception $e){
+               echo($e->getMesage);
+           }
         }
 
         
