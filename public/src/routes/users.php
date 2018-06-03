@@ -17,7 +17,7 @@ $app->group('/user', function(){
             $new_user_data=[];
             $new_user_data['name'] = filter_var($data['name'], FILTER_SANITIZE_STRING);
             $new_user_data['lastName'] = filter_var($data['lastName'], FILTER_SANITIZE_STRING);
-            $new_user_data['rol'] = filter_var($data['rol'], FILTER_SANITIZE_STRING);
+            $new_user_data['role'] = filter_var($data['role'], FILTER_SANITIZE_STRING);
             $new_user_data['nick'] = filter_var($data['nick'], FILTER_SANITIZE_STRING);
             $new_user_data['password'] = filter_var($data['password'], FILTER_SANITIZE_STRING);
         
@@ -64,7 +64,7 @@ $app->group('/user', function(){
             $new_user_data=[];
             $new_user_data['name'] = filter_var($data['name'], FILTER_SANITIZE_STRING);
             $new_user_data['lastName'] = filter_var($data['lastName'], FILTER_SANITIZE_STRING);
-            $new_user_data['rol'] = filter_var($data['rol'], FILTER_SANITIZE_STRING);
+            $new_user_data['role'] = filter_var($data['role'], FILTER_SANITIZE_STRING);
             $new_user_data['nick'] = filter_var($data['nick'], FILTER_SANITIZE_STRING);
             $new_user_data['password'] = filter_var($data['password'], FILTER_SANITIZE_STRING);
         
@@ -153,13 +153,61 @@ $app->group('/list', function(){
             $new_list_data['isFavorite'] = filter_var($data['isFavorite'], FILTER_SANITIZE_STRING);
         
             $mongoConnection = new MongoConnectionMannager();
-            $mongoConnection->addListToUser($userId, $new_list_data);
+            $list_added = $mongoConnection->addListToUser($userId, $new_list_data);
 
-            $status= json_encode(array('status' => 'success',
-            'message' => 'list added Successfully',
-            'list_id' => $new_list_data['_id']));
-            $response->getBody()->write($status);
+            if($list_added){
+                $status= json_encode(array('status' => 'success',
+                'message' => 'list added Successfully',
+                'list_id' => $new_list_data['_id']));
+                $response->getBody()->write($status);
+
+            }     
+
+        }catch(Exception $exception){
+            echo json_encode(array('status' => 'error',
+                'message' => $exception->getMessage()));
+        }
+    });
+
+    $this->get('/getById/{id}', function (Request $request, Response $response, array $args){
+
+        try{
+            $listId = new MongoDB\BSON\ObjectId($args['id']);
+            $list;
+            var_dump($listId);
+            $mongoConnection = new MongoConnectionMannager();
+            $list = $mongoConnection->getListById($listId);
+            var_dump($list);
             
+            echo json_encode($list);
+
+        }catch(Exception $exception){
+            echo json_encode(array('status' => 'error',
+                'message' => $exception->getMessage()));
+        }
+
+    });
+
+    $this->put('/getById/{id}', function (Request $request, Response $response, array $args){
+        try{
+            $data = $request->getParsedBody();
+            $listId = new MongoDB\BSON\ObjectId($args['id']);
+            //$listId = new MongoDB\BSON\ObjectId($data['userId']);
+            $new_list_data=[];
+            $new_list_data['listName'] = filter_var($data['listName'], FILTER_SANITIZE_STRING);
+            $new_list_data['score'] = filter_var($data['score'], FILTER_SANITIZE_STRING);
+            $new_list_data['isFavorite'] = filter_var($data['isFavorite'], FILTER_SANITIZE_STRING);
+        
+            $mongoConnection = new MongoConnectionMannager();
+            $list_updated = $mongoConnection->updateList($listId, $new_list_data);
+
+            if($list_updated){
+                $status= json_encode(array('status' => 'success',
+                'message' => 'list added Successfully',
+                'list_id' => $new_list_data['_id']));
+                $response->getBody()->write($status);
+
+            }     
 
         }catch(Exception $exception){
             echo json_encode(array('status' => 'error',
